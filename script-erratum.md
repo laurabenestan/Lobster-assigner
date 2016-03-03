@@ -16,7 +16,7 @@ We mistakenly ranked the markers and conducted the assignment analysis, at the s
 
 To avoid high-grading bias, the assignment analysis using the THL method requires the samples to be partitioned in a training and holdout datasets (Anderson 2010). Ranking of markers is then conducted on the training samples and the assignment with the selected markers, on the holdout samples. The corrected analysis is shown in this Erratum. The remaining assignment analysis in (Benestan et al. 2015), conducted at the regional levels, were based on the proper THL method.
 
-This Erratum prompted us to develop a robust approach in the R language (R Core Team 2015) to achieve reproducible assignment analysis while accounting for the intrinsic nature of GBS/RADseq data analysis (Gosselin et al. 2016). Our approach takes advantage of GSI_SIM, a tool written in C and developed by Eric C. Anderson (Anderson et al. 2008; Anderson 2010) and is implemented in the R package **ASSIGNER** (Gosselin et al. 2016).
+This Erratum prompted Thierry Gosselin to develop a robust approach in the R language (R Core Team 2015) to achieve reproducible assignment analysis while accounting for the intrinsic nature of GBS/RADseq data analysis (Gosselin et al. 2016). Our approach takes advantage of GSI_SIM, a tool written in C and developed by Eric C. Anderson (Anderson et al. 2008; Anderson 2010) and is implemented in the R package **ASSIGNER** (Gosselin et al. 2016).
 
 The results presented in **this Erratum can be reproducing by following this tutorial**.
 
@@ -26,7 +26,7 @@ Note that if you want to reproduce these results you will want to be on a Mac or
 ```
 library(devtools) 
 install_github("thierrygosselin/stackr") # to install
-install_github("thierrygosselin/assigner")
+install_github("thierrygosselin/assigner") # to install
 library(stackr) # to load
 library(assigner)
 library(reshape2)
@@ -48,7 +48,7 @@ library(iterators)
 
 ### *Preparing lobster data*
 
-You have to download the file `10156-586.recode.vcf` from the Benestan et al. paper's Dryad site cand put it into your current directory within Rstudio.
+You have to download the file [10156-586.recode.vcf] (http://datadryad.org/resource/doi:10.5061/dryad.q771r) from the Benestan et al. paper's Dryad site cand put it into your current directory within Rstudio.
 
 ## *Assessing the extent of high-grading bias*
 
@@ -56,24 +56,33 @@ You have to download the file `10156-586.recode.vcf` from the Benestan et al. pa
 
 We first started by **performing assignment test on the 11 populations** detected by Benestan et al.(2015).
 
-With the function **GBS_assignment** of the package *ASSIGNER v.0.1.3* we filtered the Variant Call Format file (VCF) output by STACKS, which contains only the 10156 markers previously selected in Benestan et al. 2015: `vcf.file = "10156-586.recode.vcf"`. 
+1) Dataset: 10156 SNPs
+With the function **GBS_assignment** of the package *ASSIGNER v.0.1.3* we used the filtered the Variant Call Format file (VCF) output by STACKS, which contains only the 10156 markers previously selected in Benestan et al. 2015: `vcf.file = "10156-586.recode.vcf"`. 
 Therefore, there is no need to specify a whitelist of markers and a blacklist of individuals then `whitelist.markers = NULL` and `blacklist.id = NULL`. 
 
-Additionally, we can requested with a function argument that markers be present in all populations. Here, in order to reproduce the same results than the paper **we kept all the 10156 markers**, even if they are not present in some populations. To do so, we specified `common.markers = FALSE`. 
+2) Keep all the SNPs
+Additionally, we can requested if we want to keep only the markers present in all populations. Here, in order to reproduce the same results than the paper **we kept all the 10156 markers**, even if some markers are not missing in some populations. To do so, we specified `common.markers = FALSE`. 
 
+3) Do not correct for LD
 Some of the resulting SNPs are positioned on the same 90 pb read. Here, to make the approach reproducible in a pipeline, we evaluated linkage disequilibrium impact on the assignment analysis by using three LD grouping analysis: i) all the markers along the read, independent of their position, ii) the first marker on the read and iii) one marker randomly selected along the read. However, as for Benestan et al paper, **all SNPs were kept even if there were positionned on the same loci**, we specified `snp.LD = NULL`.
 
+4) Use THL method with 50% of the individuals
 To reproduce the analysis of Benestan et al. 2015,  we **performed the population assignment test with a THL threshold of 50 %** using the argument `THL = 0.5`. The samples were randomly partitioned, without replacement, into training and holdout samples. The training datasets markers were ranked based on their decreasing global FST. 
 
+5) Subsample population with n = 30
 **Since assignment test can be strongly influenced by sample size, we subsample the 11 populations by keeping only 30 individuals per population** (n = 30 being the minimum of individuals present in one population). Then, we specified the argument `subsample = 30`.
 
+6) Do all the subsampling of individuals (required for THL method) 10 times
 By subsampling, there is a possibility to create some sampling error (some individuals being samples may be migrants or not). Then **we performed the subsampling 10 times**, which requires the argument:`iterations.subsample = 10`. 
 
+6) Specify the population level used for the assignment test
 Here, **we specified the 11 populations** by using the argument `pop.labels = c("TRI", "BON", "GSL", "CAR", "GSL", "GSL", "GSL", "BRA", "GSL", "CAN", "SNS", "SNS", "SNS", "SEA", "BOO", "CCO", "CCO", "RHO")`.
 As the name of our population started at the first position and finish at the third position (our population are encoded with three letters, e.g. "TRI") we used: `pop.id.start = 1, pop.id.end = 3`.
 
+7) Do not fill the missing data
 No imputations were done on this dataset: `imputations = FALSE`.
 
+8) Run the following command in R 
 At the end, we run the command: 
 
 ```
@@ -84,10 +93,13 @@ system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.
 
 We then **performed assignment test on the two regions (North/South)** detected by Benestan et al. (2015). 
 
+1) Specify the region level used for the assignment test 
 We run a similar command than the one used for the 11 populations except that here, our population labels corresponds to the two regions (NOR and SOU): `pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU")`. 
 
+2) Do not subsample
 Assignment test is not influenced by sample size here since the two regions have a large and similar number of individuals (306 for the North and 280 for the South). Then, we run the argument `subsample = NULL`.
- 
+
+8) Run the following command in R :
 Following these arguments, we run the command: 
 ```
 system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.LD = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", THL = 0.5, blacklist.id = NULL, subsample = NULL, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions"))
@@ -98,8 +110,11 @@ system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.
 We also considered the possibility that dividing the samples into a training and a hold-out or test sets (on average n = 15 each) may have resulted in biased FST values when ranking the markers due to sampling errors associated with too low sample size.
 
 Then **we applied a Leave-one-out (LOO) procedure described in Anderson’s (2010)**, which requires that each individual, in turn, be left out, while the entire process of locus selection and allele frequency estimation is carried out without that individual, and then that individual is assigned back to a population. 
+
+1) Change the method for performing assignment test: use LOO method 
 This procedure could be done with the argument `THL = 1`.  
 
+2) Run the following command in R 
 For that purpose, we run the following command: 
 
 ```
@@ -114,11 +129,13 @@ Since regional assignment success was still high after correcting for high-gradi
 
 In this case, we expected that regional assignment success, corrected for high-grading bias and performed on the same number of individuals that we sampled per location (which was at maximum 36 individuals), would be similar from the one observed using more individuals. 
 
+1) Use THL method with 50% of the individuals
 To test this hypothesis and delineate the gradual effect of the number of samples on assignment success, we selected randomly from 20 to 100 samples from each region, ranked SNPs based on half of these samples (training set), and then calculated the assignment success on the hold-out set (THL method):`THL = 0.50`. 
 
-
+2) Subsample individuals 10 times
 By subsampling, there is a possibility to create some sampling error (some individuals being sampled may be migrants or not). Then **we performed the subsampling 10 times**, which requires the argument:`iterations.subsample = 10`. 
 
+3) Make subsamples of 20,36,50,100 indivioduals
 For 20 individuals subsampled, we included the argument `subsample = 20`:
 
 ```
