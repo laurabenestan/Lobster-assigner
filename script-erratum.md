@@ -25,9 +25,8 @@ Note that if you want to reproduce these results you will want to be on a Mac or
 ### *Download the libraries*
 ```
 library(devtools) 
-install_github("thierrygosselin/stackr") # to install
 install_github("thierrygosselin/assigner") # to install
-library(stackr) # to load
+install_gsi_sim(fromSource = TRUE) # to install gsi_sim from source
 library(assigner)
 library(reshape2)
 library(ggplot2)
@@ -64,7 +63,7 @@ Therefore, there is no need to specify a whitelist of markers and a blacklist of
 Additionally, we can requested if we want to keep only the markers present in all populations. Here, in order to reproduce the same results than the paper **we kept all the 10156 markers**, even if some markers are not missing in some populations. To do so, we specified `common.markers = FALSE`. 
 
 3) Do not correct for LD
-Some of the resulting SNPs are positioned on the same 90 pb read. Here, to make the approach reproducible in a pipeline, we evaluated linkage disequilibrium impact on the assignment analysis by using three LD grouping analysis: i) all the markers along the read, independent of their position, ii) the first marker on the read and iii) one marker randomly selected along the read. However, as for Benestan et al paper, **all SNPs were kept even if there were positionned on the same loci**, we specified `snp.LD = NULL`.
+Some of the resulting SNPs are positioned on the same 90 pb read. Here, to make the approach reproducible in a pipeline, we evaluated linkage disequilibrium impact on the assignment analysis by using three LD grouping analysis: i) all the markers along the read, independent of their position, ii) the first marker on the read and iii) one marker randomly selected along the read. However, as for Benestan et al paper, **all SNPs were kept even if there were positionned on the same loci**, we specified `snp.ld = NULL`.
 
 4) Use THL method with 50% of the individuals
 To reproduce the analysis of Benestan et al. 2015,  we **performed the population assignment test with a THL threshold of 50 %** using the argument `THL = 0.5`. The samples were randomly partitioned, without replacement, into training and holdout samples. The training datasets markers were ranked based on their decreasing global FST. 
@@ -86,7 +85,7 @@ No imputations were done on this dataset: `imputations = FALSE`.
 At the end, we run the command: 
 
 ```
-system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.LD = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", THL = 0.5, blacklist.id = NULL, subsample = 30, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("TRI", "BON", "GSL", "CAR", "GSL", "GSL", "GSL", "BRA", "GSL", "CAN", "SNS", "SNS", "SNS", "SEA", "BOO", "CCO", "CCO", "RHO"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_pop"))
+system.time(assignment.lobster.common.markers.THL.1.sites <- assignment_ngs(data = "10156-586.recode.vcf", whitelist.markers = NULL, snp.ld = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", thl = 0.5, blacklist.id = NULL, subsample = 30, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("TRI", "BON", "GSL", "CAR", "GSL", "GSL", "GSL", "BRA", "GSL", "CAN", "SNS", "SNS", "SNS", "SEA", "BOO", "CCO", "CCO", "RHO"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_pop"))
 ```
 
 ### *Performing assignment test with THL 0.5 for the two regions*
@@ -102,7 +101,7 @@ Assignment test is not influenced by sample size here since the two regions have
 8) Run the following command in R :
 Following these arguments, we run the command: 
 ```
-system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.LD = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", THL = 0.5, blacklist.id = NULL, subsample = NULL, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions"))
+system.time(assignment.lobster.common.markers.THL.1.sites <- assignment_ngs(data = "10156-586.recode.vcf", whitelist.markers = NULL, snp.ld = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", thl = 0.5, blacklist.id = NULL, subsample = NULL, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions"))
 ```
 
 ### *Performing assignment test with THL 1 for the 11 populations*
@@ -112,13 +111,13 @@ We also considered the possibility that dividing the samples into a training and
 Then **we applied a Leave-one-out (LOO) procedure described in Anderson’s (2010)**, which requires that each individual, in turn, be left out, while the entire process of locus selection and allele frequency estimation is carried out without that individual, and then that individual is assigned back to a population. 
 
 1) Change the method for performing assignment test: use LOO method 
-This procedure could be done with the argument `THL = 1`.  
+This procedure could be done with the argument `thl = 1`.  
 
 2) Run the following command in R 
 For that purpose, we run the following command: 
 
 ```
-system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.LD = NULL, iterations.subsample=NULL, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", THL = 1, blacklist.id = NULL, subsample = 30, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("TRI", "BON", "GSL", "CAR", "GSL", "GSL", "GSL", "BRA", "GSL", "CAN", "SNS", "SNS", "SNS", "SEA", "BOO", "CCO", "CCO", "RHO"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_1_populations"))
+system.time(assignment.lobster.common.markers.THL.1.sites <- assignment_ngs(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.ld = NULL, iterations.subsample=NULL, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", thl = 1, blacklist.id = NULL, subsample = 30, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("TRI", "BON", "GSL", "CAR", "GSL", "GSL", "GSL", "BRA", "GSL", "CAN", "SNS", "SNS", "SNS", "SEA", "BOO", "CCO", "CCO", "RHO"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_1_populations"))
 ```
 
 # *Delineating the impact of the number of samples on assignment success*
@@ -139,25 +138,25 @@ By subsampling, there is a possibility to create some sampling error (some indiv
 For 20 individuals subsampled, we included the argument `subsample = 20`:
 
 ```
-system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.LD = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", THL = 0.50, blacklist.id = NULL, subsample = 20, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions-sampling20_subsample10"))
+system.time(assignment.lobster.common.markers.THL.1.sites <- assignment_ngs(data = "10156-586.recode.vcf", whitelist.markers = NULL, snp.LD = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", thl = 0.50, blacklist.id = NULL, subsample = 20, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions-sampling20_subsample10"))
 ```
 
 For 36 individuals subsampled, we included the argument `subsample = 36`:
 
 ```
-system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.LD = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", THL = 0.5, blacklist.id = NULL, subsample = 36, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions-sampling36_subsample10"))
+system.time(assignment.lobster.common.markers.THL.1.sites <- assignment_ngs(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.ld = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", thl = 0.5, blacklist.id = NULL, subsample = 36, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions-sampling36_subsample10"))
 ```
 
 For 50 individuals subsampled, we included the argument `subsample = 50`:
 
 ```
-system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.LD = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", THL = 0.5, blacklist.id = NULL, subsample = 50, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions-sampling50_subsample10"))
+system.time(assignment.lobster.common.markers.THL.1.sites <- assignment_ngs(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.ld = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", thl = 0.5, blacklist.id = NULL, subsample = 50, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions-sampling50_subsample10"))
 ```
 
 For 100 individuals subsampled, we included the argument `subsample = 100`:
 
 ```
-system.time(assignment.lobster.common.markers.THL.1.sites <- GBS_assignment(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.LD = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", THL = 0.5, blacklist.id = NULL, subsample = 50, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO", "ALM", "ANT", "SJI", "TON"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "ALM", "ANT", "SJI", "TON"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions-sampling100_subsample10"))
+system.time(assignment.lobster.common.markers.THL.1.sites <- assignment_ngs(vcf.file = "10156-586.recode.vcf", whitelist.markers = NULL, snp.ld = NULL, iterations.subsample=10, common.markers = FALSE, marker.number = c(100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, "all"), sampling.method = "ranked", thl = 0.5, blacklist.id = NULL, subsample = 50, gsi_sim.filename = "lobster.gsi_sim.txt", keep.gsi.files = FALSE, pop.levels = c("TRI", "BON", "GAS", "CAR", "MAL", "EDN", "CAP", "BRA", "SID", "CAN", "LOB", "BRO", "OFF", "SEA", "BOO", "MAR", "BUZ", "RHO", "ALM", "ANT", "SJI", "TON"), pop.labels = c("NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "NOR", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "SOU", "ALM", "ANT", "SJI", "TON"), pop.id.start = 1, pop.id.end = 3, imputations = FALSE, parallel.core = 24, folder = "THL_0.5_regions-sampling100_subsample10"))
 ```
 
 # *Visualisation of the results*
@@ -239,4 +238,3 @@ plot + facet_grid(~CURRENT)+
 ggsave("Assignment_samples_black_white.pdf",width=20,height=20,dpi=300,units="cm",useDingbats=F)
 dev.off()
 ````
-
